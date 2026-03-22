@@ -10,11 +10,6 @@
             src: url('CMU-Regular.ttf') format('truetype');
         }
 
-        @font-face {
-            font-family: 'iannnnn-DOG';
-            src: url('iannnnn-DOG-Regular.ttf') format('truetype');
-        }
-
         body, html {
             margin: 0;
             padding: 0;
@@ -170,7 +165,7 @@
             box-shadow: 0 10px 40px rgba(255, 182, 193, 0.4);
             line-height: 1.8;
             font-size: 18px;
-            font-family: 'iannnnn-DOG', sans-serif;
+            font-family: 'CMU', sans-serif;
             min-height: 300px;
             max-height: 80vh; /* จำกัดความสูงไม่ให้ล้นจอ */
             overflow-y: auto; /* เพิ่มให้สามารถเลื่อนขึ้นลงได้ */
@@ -207,6 +202,9 @@
         .typewriter {
             display: block;
             text-align: left;
+            white-space: pre-wrap; /* ให้มันขึ้นบรรทัดใหม่ตาม \n และห่อข้อความ */
+            word-break: break-word; /* ป้องกันข้อความยาวทะลุกรอบ */
+            overflow-wrap: break-word;
         }
 
         .char-fade {
@@ -228,6 +226,36 @@
 
         .audio-controls.show {
             opacity: 1;
+        }
+
+        .skip-btn-container {
+            text-align: right;
+            margin-bottom: 10px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s;
+        }
+
+        .skip-btn-container.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .skip-btn {
+            background-color: transparent;
+            color: #ff91a4;
+            border: 1px solid #ff91a4;
+            padding: 5px 15px;
+            font-size: 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: none;
+            transition: 0.3s;
+        }
+
+        .skip-btn:hover {
+            background-color: #ffe6ea;
+            transform: scale(1.05);
         }
 
         /* Left & Right floating images - Adjusted to be next to letter */
@@ -285,13 +313,14 @@
         /* Responsive constraints for smaller screens */
         @media (max-width: 768px) {
             .login-box, .letter-container {
-                width: 85%;
-                padding: 25px; /* ลดกรอบให้เล็กลงในมือถือ เพิ่มพื้นที่ข้อความ */
+                width: 90%; /* ขยายความกว้างขึ้นนิดหน่อยให้ตัวอักษรไม่เบียดเกินไป */
+                padding: 20px; /* ลด padding ข้างในเพื่อเว้นที่ให้ตัวอักษรแบบเต็มที่ */
                 box-sizing: border-box;
             }
 
             .letter-container {
-                font-size: 16px;
+                font-size: 15px; /* ลดขนาดตัวอักษรลงมาอีกนิดเพื่อความพอดีในมือถือ */
+                line-height: 1.6;
                 min-height: 250px;
                 max-height: 75vh; /* ในมือถือจอเล็ก ให้เลื่อนง่ายขึ้น */
             }
@@ -349,6 +378,10 @@
                 <button onclick="document.getElementById('myAudio').play()"> รู้ว่าขี้เกียจอ่านนน!!! ฟังเสียงเค้าเอาก็ได้!!!</button>
             </div>
             
+            <div class="skip-btn-container" id="skipBtnContainer">
+                <button class="skip-btn" onclick="skipTypewriter()">ข้ามอนิเมชัน >></button>
+            </div>
+
             <div id="letter-text" class="typewriter"></div>
 
             <div class="audio-controls" id="audioControls">
@@ -480,12 +513,17 @@
             document.getElementById('imgLeft').classList.add('show');
             document.getElementById('imgRight').classList.add('show');
             document.getElementById('topAudioBtn').classList.add('show');
+            document.getElementById('skipBtnContainer').classList.add('show');
 
             setTimeout(typeWriter, 500);
         }
 
         let i = 0;
+        let isTypingSkipped = false;
+
         function typeWriter() {
+            if (isTypingSkipped) return;
+
             if (i < letterMessage.length) {
                 // เปลี่ยน \n เป็น <br> (เผื่ออนาคตคุณอยากจัดบรรทัด)
                 let char = letterMessage.charAt(i);
@@ -500,8 +538,20 @@
                 // ปรับความเร็วให้เล็กลง เพราะข้อความยาวมาก ถ้าช้าไปเดี๋ยวอ่านไม่ทัน
                 setTimeout(typeWriter, 25);
             } else {
-                document.getElementById('audioControls').classList.add('show');
+                finishTypewriter();
             }
+        }
+
+        function skipTypewriter() {
+            isTypingSkipped = true;
+            // ปริ้นตัวอักษรทั้งหมดออกมาเลยโดยแทนที่ \n ด้วย <br>
+            document.getElementById('letter-text').innerHTML = letterMessage.replace(/\n/g, '<br>');
+            finishTypewriter();
+        }
+
+        function finishTypewriter() {
+            document.getElementById('audioControls').classList.add('show');
+            document.getElementById('skipBtnContainer').style.display = 'none'; // ซ่อนปุ่มข้ามเมื่อแสดงเสร็จแล้ว
         }
 
         function nextPage() {
