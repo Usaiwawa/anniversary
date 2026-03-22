@@ -1,0 +1,515 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Anniversary</title>
+    <style>
+        @font-face {
+            font-family: 'CMU';
+            src: url('CMU-Regular.ttf') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'iannnnn-DOG';
+            src: url('iannnnn-DOG-Regular.ttf') format('truetype');
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'CMU', sans-serif;
+            background-color: #fdfbfb;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Floating Hearts / Stars Background */
+        .bg-bubbles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .bubble {
+            position: absolute;
+            bottom: -50px;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 182, 193, 0.3);
+            border-radius: 50%;
+            animation: floatUp 10s infinite ease-in-out;
+        }
+
+        /* Create a pseudo-element to look like a heart for some bubbles */
+        .bubble.heart {
+            background: transparent;
+            width: 20px;
+            height: 20px;
+        }
+        .bubble.heart::before,
+        .bubble.heart::after {
+            content: "";
+            position: absolute;
+            left: 10px;
+            top: 0;
+            width: 10px;
+            height: 16px;
+            background: rgba(255, 145, 164, 0.4);
+            border-radius: 10px 10px 0 0;
+            transform: rotate(-45deg);
+            transform-origin: 0 100%;
+        }
+        .bubble.heart::after {
+            left: 0;
+            transform: rotate(45deg);
+            transform-origin: 100% 100%;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) translateX(0) scale(1) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(-50vh) translateX(20px) scale(1.2) rotate(45deg);
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(-20px) scale(0.8) rotate(90deg);
+                opacity: 0;
+            }
+        }
+
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1s ease-in-out, visibility 1s;
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+        }
+
+        .screen.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Login Screen */
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 1.5s ease-in-out, opacity 1s;
+            z-index: 10;
+        }
+
+        .login-box.zoom-in {
+            transform: scale(5);
+            opacity: 0;
+        }
+
+        input[type="password"], input[type="text"] {
+            padding: 12px 20px;
+            margin: 20px 0;
+            border: 2px solid #ffb6c1;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            text-align: center;
+            width: 80%;
+        }
+
+        button {
+            background-color: #ffb6c1;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            box-shadow: 0 4px 15px rgba(255, 182, 193, 0.4);
+            font-family: 'CMU', sans-serif;
+        }
+
+        button:hover {
+            background-color: #ff91a4;
+            transform: scale(1.05);
+        }
+
+        /* Letter Screen */
+        .letter-container {
+            width: 80%;
+            max-width: 600px;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(255, 182, 193, 0.4);
+            line-height: 1.8;
+            font-size: 18px;
+            font-family: 'iannnnn-DOG', sans-serif;
+            min-height: 300px;
+            max-height: 80vh; /* จำกัดความสูงไม่ให้ล้นจอ */
+            overflow-y: auto; /* เพิ่มให้สามารถเลื่อนขึ้นลงได้ */
+            position: relative;
+            z-index: 10;
+        }
+
+        /* แต่ง Scrollbar ให้ดูน่ารักเข้ากับธีม */
+        .letter-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .letter-container::-webkit-scrollbar-track {
+            background: #ffe6ea;
+            border-radius: 10px;
+        }
+        .letter-container::-webkit-scrollbar-thumb {
+            background: #ffb6c1;
+            border-radius: 10px;
+        }
+        .letter-container::-webkit-scrollbar-thumb:hover {
+            background: #ff91a4;
+        }
+
+        .top-audio-btn {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1s;
+        }
+        .top-audio-btn.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .typewriter {
+            display: block;
+            text-align: left;
+        }
+
+        .char-fade {
+            color: #ffb6c1;
+            animation: fadeToBlack 1.5s forwards;
+        }
+
+        @keyframes fadeToBlack {
+            0% { color: #ffb6c1; }
+            100% { color: #333333; }
+        }
+
+        .audio-controls {
+            margin-top: 30px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 1s;
+        }
+
+        .audio-controls.show {
+            opacity: 1;
+        }
+
+        /* Left & Right floating images - Adjusted to be next to letter */
+        .side-img {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 250px;
+            max-width: 25vw;
+            animation: bounce-img 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1.5s ease-in-out;
+            z-index: 5;
+        }
+
+        .side-img.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .side-img-left {
+            left: 5%;
+        }
+
+        .side-img-right {
+            right: 5%;
+            animation-delay: 1s; /* ทำให้ขยับไม่พร้อมกัน */
+        }
+
+        @keyframes bounce-img {
+            0%, 100% { transform: translateY(-50%) scale(1) rotate(0deg); }
+            20% { transform: translateY(calc(-50% - 50px)) scale(1.1) rotate(-5deg); }
+            40% { transform: translateY(-50%) scale(1) rotate(3deg); }
+            60% { transform: translateY(calc(-50% - 25px)) scale(1.05) rotate(-2deg); }
+            80% { transform: translateY(-50%) scale(1) rotate(1deg); }
+        }
+
+        /* Sparkle element for letter box removed as it caused background color overlap */
+        
+        /* Video Screen */
+        .video-container {
+            width: 90%;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        video {
+            width: 100%;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        /* Responsive constraints for smaller screens */
+        @media (max-width: 768px) {
+            .login-box, .letter-container {
+                width: 85%;
+                padding: 25px; /* ลดกรอบให้เล็กลงในมือถือ เพิ่มพื้นที่ข้อความ */
+                box-sizing: border-box;
+            }
+
+            .letter-container {
+                font-size: 16px;
+                min-height: 250px;
+                max-height: 75vh; /* ในมือถือจอเล็ก ให้เลื่อนง่ายขึ้น */
+            }
+
+            button {
+                padding: 10px 20px;
+                font-size: 14px; /* ลดขนาดฟอนต์ปุ่มในมือถือกันข้อความล้น */
+            }
+
+            /* ปรับรูปด้านข้างให้อยู่บน-ล่าง ขอบจอแทน จะได้ไม่บังข้อความ */
+            .side-img {
+                width: 100px; /* ลดขนาดรูป */
+                max-width: none;
+                opacity: 0.8 !important; /* ให้เห็นชัดขึ้นกว่าเดิมหน่อย */
+            }
+
+            .side-img-left {
+                top: 15%; /* ดันขึ้นไปจุดสูงสุด */
+                left: -10px; /* ชิดซ้าย */
+            }
+
+            .side-img-right {
+                top: 85%; /* ดันลงไปด้านล่าง */
+                right: -10px; /* ชิดขวา */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Floating Background Elements -->
+    <div class="bg-bubbles" id="bg-bubbles"></div>
+
+    <!-- ================= 1. หน้า Login ================= -->
+    <div id="screen-1" class="screen active">
+        <div class="login-box" id="loginBox">
+            <h2 id="login-title">รหัสผ่านคืออะไรเอ่ย? 💖</h2>
+            <p id="login-hint">ใบ้ให้ๆ เธอรู้อยู่แน่ๆครับ มั่นใจ!!</p>
+            <input type="text" id="password" placeholder="xxxxxx" autocomplete="off" />
+            <br>
+            <button id="login-btn" onclick="checkPassword()">ตอบแล้วคนเก่งกดตรงนี้!!</button>
+            <p id="error-msg" style="color: red; display: none; margin-top: 10px; font-size: 14px; transition: font-size 0.3s ease, color 0.3s; font-weight: bold;">ลองนึกดูดีๆ นะคับบ ผิดแหล่วว!</p>
+        </div>
+    </div>
+
+    <!-- ================= 2. หน้า จดหมาย & เสียง ================= -->
+    <div id="screen-2" class="screen">
+        <!-- รูปตกแต่ง ซ้าย/ขวา -->
+        <img src="left-pic.png" id="imgLeft" class="side-img side-img-left" alt="รูปแฟนฝั่งซ้าย">
+        <img src="right-pic.png" id="imgRight" class="side-img side-img-right" alt="รูปแฟนฝั่งขวา">
+
+        <div class="letter-container">
+            <div style="text-align: center; margin-bottom: 20px;" class="top-audio-btn" id="topAudioBtn">
+                <audio id="myAudio" src="your-voice.mp3"></audio>
+                <button onclick="document.getElementById('myAudio').play()"> รู้ว่าขี้เกียจอ่านนน!!! ฟังเสียงเค้าเอาก็ได้!!!</button>
+            </div>
+            
+            <div id="letter-text" class="typewriter"></div>
+
+            <div class="audio-controls" id="audioControls">
+                <button onclick="nextPage()">อ่านจบแล้ว ไปต่อกันเลยมะ? >></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 3. หน้า Video ================= -->
+    <div id="screen-3" class="screen">
+        <div class="video-container">
+            <h2>มีอะไรอยากให้ดูคับคนเก่ง </h2>
+            <video controls>
+                <source src="your-video.mp4" type="video/mp4">
+                เบราว์เซอร์ของคุณไม่รองรับการเล่นวิดีโอ
+            </video>
+            <br>
+            <a href="your-video.mp4" download="Our-Anniversary-Song.mp4" style="text-decoration: none;">
+                <button> โหลดเก็บไว้ดูนะ</button>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const letterMessage = `ถึง คุณแฟนที่น่ารักสุดที่รักของผม
+
+สวัสดีครับเธอ ก่อนอื่นเค้าต้องบอกก่อนเลย สุขสันต์วันครบรอบ 4 ปีนะครับ รักเธอน้าาาาา!!!!
+ปีที่ผ่านเราทั้งคู่ผ่านอะไรมาด้วยกันเยอะมากๆเลยเนอะ มีทั้งเรื่องอะไรที่เราทั้งคู่ทำผิดพลาดไปจนทำให้เป็นเรื่องใหญ่กับเราทั้งคู่เลย
+เค้าขอบคุณนะครับที่สุดท้ายเธอก็ยังเลือกที่จะอยู่กับเค้า ถึงแม้ว่าเค้าจะทำตัวเห็นแก่ตัวไปบ้าง ทำเรื่องไม่เป็นเรื่องบ้าง ใช้อารมณ์จนทำให้เธอเสียใจ ต้องร้องไห้ แต่เธอก็ยังเลือกที่จะอยู่กับเค้า เค้าขอบคุณมากๆเลยนะครับ
+เธอสำคัญกับเค้ามากๆเลยนะครับ เค้าโคตรๆๆๆ จะดีใจเลยเวลาเธอชมเค้าเวลาเริ่มทำอะไรสักอย่าง ไม่ว่าในมุมมองของเค้า เค้าจะมองว่ามันจะยังไม่ดี แต่เธอก็จะหาข้อดีของมันเจอตลอดแล้วก็จะชมเค้ามาโดยตลอด
+จนสุดท้ายมันก็ทำให้เค้ามีกำลังจนสามารถเป็นเค้าในปัจจุบันได้ เค้าขอบคุณเธอมากๆเลยนะครับ เค้าไม่รู้เค้าจะพูดยังไงให้บรรยายคำขอบคุณที่เค้าอยากจะให้เธอดี ตอนนี้เค้าว่าแค่คำว่ารัก มันไม่สามารถบรรยายความรู้สึกที่มีต่อเธอได้พอแล้ว เค้าโคตรจะคิดถึงเธอเลย อยากกอดมากๆ อยากอยู่กับเธอเยอะๆๆๆ!!! ทำให้เธอมีความสุขที่สุดเท่าที่จะทำได้ เค้ารู้สึกว่าเธอเข้ามาอยู่ในทุกส่วนของเค้าจนตอนนี้เค้าต้องมีเธออยู่จริงๆ ขอบคุณนะครับ เค้ารักเธอมากๆเลยนะ
+ในปีนี้เค้าขอโทษนะครับที่เค้าไปทำเรื่องไม่เป็นเรื่องจนทำให้เมลเค้าโดนแฮกจนไม่มีภาพเราสักภาพเลย แต่หลังจากนี้เค้าจะเริ่มกลับมาบันทึกภาพพวกเราไว้ เอาให้เยอะๆ จนเธอบ่นเลยว่าจะเก็บอะไรนักหนา ฮะๆๆ นั่นแหละครับ ที่อยากจะบอกก็คงมีประมาณนี้... งั้น... คิดว่าจะหมดแล้วเหรอ ? หืม? ไม่ ไม่หมดหรอก กดอันที่ขึ้นมาสิ มันจะพาไปไหนสักที่นะ ก่อนจะไปๆๆๆ เค้ารักเธอนะครับ รักเธอที่สุดดดดดด!!!! รักเธอมากกว่าเธออีก
+
+รักเธอที่สุดในโลก
+จาก แฟนคนเดียวของเธอเองครับ ไม่ต้องบอกเนอะว่าชื่ออะไร`;
+        
+        let wrongCount = 0;
+        let isSulking = false;
+
+        function createBubbles() {
+            const bubblesContainer = document.getElementById('bg-bubbles');
+            for (let i = 0; i < 15; i++) {
+                let bubble = document.createElement('div');
+                bubble.classList.add('bubble');
+                // สุ่มให้บางอันเป็นรูปหัวใจ
+                if (Math.random() > 0.5) {
+                    bubble.classList.add('heart');
+                }
+                bubble.style.left = Math.random() * 100 + 'vw';
+                bubble.style.animationDelay = Math.random() * 5 + 's';
+                bubble.style.animationDuration = 5 + Math.random() * 10 + 's';
+                bubblesContainer.appendChild(bubble);
+            }
+        }
+        // เรียกใช้งานตอนเริ่ม
+        createBubbles();
+
+        function checkPassword() {
+            const pwdInputObj = document.getElementById('password');
+            const errorMsgObj = document.getElementById('error-msg');
+            const pwdInput = pwdInputObj.value.trim();
+
+            if (isSulking) {
+                if (pwdInput === "ง้อๆ") {
+                    isSulking = false;
+                    wrongCount = 0;
+                    
+                    errorMsgObj.style.display = 'none';
+                    errorMsgObj.style.fontSize = '14px';
+                    errorMsgObj.innerText = 'ลองนึกดูดีๆ นะคับบ ผิดแหล่วว!';
+                    
+                    document.getElementById('login-title').innerText = 'รหัสผ่านคืออะไรเอ่ย? 💖';
+                    document.getElementById('login-hint').innerText = 'หายงอนละ... แต่รอบนี้ไม่บอกหรอกว่าคำใบ้คืออะไร';
+                    pwdInputObj.value = '';
+                    pwdInputObj.placeholder = "xxxxxx";
+                    document.getElementById('login-btn').innerText = 'ปลดล็อก';
+                } else {
+                    errorMsgObj.style.display = 'block';
+                    errorMsgObj.innerText = 'ยังไม่ง้ออีก!! พิมพ์มาเดี๋ยวนี้ว่า "ง้อๆ" 😤';
+                    // เพิ่มขนาดนิดหน่อยพองาม
+                    errorMsgObj.style.fontSize = '24px';
+                }
+                return;
+            }
+
+            const cleanPwd = pwdInput.replace(/[^0-9]/g, '');
+
+            if (cleanPwd === '230322' || cleanPwd === '23032022') {
+                errorMsgObj.style.display = 'none';
+
+                const loginBox = document.getElementById('loginBox');
+                loginBox.classList.add('zoom-in');
+
+                setTimeout(() => {
+                    document.getElementById('screen-1').classList.remove('active');
+                    showMainLetter(); // ลบซองจดหมายออกแล้ว ให้มาหน้าจดหมายเลย
+                }, 1200);
+
+            } else {
+                wrongCount++;
+                errorMsgObj.style.display = 'block';
+                
+                if (wrongCount === 1) {
+                    errorMsgObj.innerText = 'ผิดนะครับ! ลองใหม่ดีๆ!';
+                    errorMsgObj.style.fontSize = '16px';
+                } else if (wrongCount === 2) {
+                    errorMsgObj.innerText = 'เฮ้ย! นึกดีๆ !!!!';
+                    errorMsgObj.style.fontSize = '20px';
+                } else if (wrongCount === 3) {
+                    errorMsgObj.innerText = 'จะจำไม่ได้จริงๆ หรอ!! 😡';
+                    errorMsgObj.style.fontSize = '28px';
+                } else if (wrongCount >= 4) {
+                    isSulking = true;
+                    document.getElementById('login-title').innerText = 'งอนแล้ว!!! 😤';
+                    document.getElementById('login-hint').innerText = 'แฟนจำเรื่องสำคัญไม่ได้ ไม่ให้ใส่รหัสแล้ว ไม่ยอมให้แฟนเข้าแล้วว!';
+                    errorMsgObj.innerText = 'ต้องพิมพ์ง้อมาเลยนะ พิมพ์มาว่า "ง้อๆ" !';
+                    errorMsgObj.style.fontSize = '22px';
+                    
+                    pwdInputObj.value = '';
+                    pwdInputObj.placeholder = "พิมพ์ว่า 'ง้อๆ'";
+                    document.getElementById('login-btn').innerText = 'ง้อเค้าเดี๋ยวนี้';
+                }
+            }
+        }
+
+        function showMainLetter() {
+            document.getElementById('screen-2').classList.add('active');
+            
+            document.getElementById('imgLeft').classList.add('show');
+            document.getElementById('imgRight').classList.add('show');
+            document.getElementById('topAudioBtn').classList.add('show');
+
+            setTimeout(typeWriter, 500);
+        }
+
+        let i = 0;
+        function typeWriter() {
+            if (i < letterMessage.length) {
+                // เปลี่ยน \n เป็น <br> (เผื่ออนาคตคุณอยากจัดบรรทัด)
+                let char = letterMessage.charAt(i);
+                if (char === '\n') {
+                    document.getElementById('letter-text').innerHTML += '<br>';
+                } else if (char === ' ') {
+                    document.getElementById('letter-text').innerHTML += ' ';
+                } else {
+                    document.getElementById('letter-text').innerHTML += `<span class="char-fade">${char}</span>`;
+                }
+                i++;
+                // ปรับความเร็วให้เล็กลง เพราะข้อความยาวมาก ถ้าช้าไปเดี๋ยวอ่านไม่ทัน
+                setTimeout(typeWriter, 25);
+            } else {
+                document.getElementById('audioControls').classList.add('show');
+            }
+        }
+
+        function nextPage() {
+            document.getElementById('myAudio').pause();
+
+            document.getElementById('screen-2').classList.remove('active');
+            document.getElementById('screen-3').classList.add('active');
+        }
+    </script>
+</body>
+</html>
